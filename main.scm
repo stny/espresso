@@ -55,34 +55,6 @@
 (define (operands exp)
   (cdr exp))
 
-; frame & environment {{{
-
-(define empty-frame '())
-
-(define (make-frame)
-  (make-hash-table))
-
-(define (first-frame frame)
-  (car frame))
-
-(define (frame-get frame var)
-  (hash-table-get frame var #f))
-
-(define (add-binding-to-frame! var val frame)
-  (hash-table-put! frame var val))
-
-(define (extend-frame frame base-frame)
-  (cons frame base-frame))
-
-(define (init-environment)
-  (let ((frame (make-frame)))
-    (install-primitive-procedures frame)
-    (extend-frame frame empty-frame)
-    ))
-
-(define global-environment (init-environment))
-
-; }}}
 ; primitive {{{
 (define primitive-procedures
   '(
@@ -112,6 +84,34 @@
       )
     )
     (install primitive-procedures))
+
+; }}}
+; frame & environment {{{
+
+(define empty-frame '())
+
+(define (make-frame)
+  (make-hash-table))
+
+(define (first-frame frame)
+  (car frame))
+
+(define (frame-get frame var)
+  (hash-table-get frame var #f))
+
+(define (add-binding-to-frame! var val frame)
+  (hash-table-put! frame var val))
+
+(define (extend-frame frame base-frame)
+  (cons frame base-frame))
+
+(define (init-environment)
+  (let ((frame (make-frame)))
+    (install-primitive-procedures frame)
+    (extend-frame frame empty-frame)
+    ))
+
+(define global-environment (init-environment))
 
 ; }}}
 ; main {{{
