@@ -70,7 +70,15 @@
     ))
 
 (define primitive-procedures
-  '(+ - * /)
+  '(
+    +
+    -
+    *
+    /
+    =
+    >
+    <
+    )
   )
 
 (define (install-primitive-procedures frame)
