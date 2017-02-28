@@ -1,4 +1,4 @@
-LATTE
-=====
+Espresso
+========
 
-A scheme interpreter - Meta-circular evaluator
+A Scheme interpreter / Meta-circular evaluator based on SICP.

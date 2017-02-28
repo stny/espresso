@@ -3,7 +3,7 @@
 (add-load-path "." :relative)
 (use signal-handler)
 
-(define prompt "latte>> ")
+(define prompt "espresso>> ")
 
 (define gauche-apply apply)
 (define gauche-eval eval)
