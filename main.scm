@@ -46,6 +46,17 @@
     (cons (eval (car exps) env) (extract-operands (cdr exps) env))
   ))
 
+(define (application? exp)
+  (pair? exp))
+
+(define (operator exp)
+  (car exp))
+
+(define (operands exp)
+  (cdr exp))
+
+; frame & environment {{{
+
 (define empty-frame '())
 
 (define (make-frame)
@@ -69,6 +80,10 @@
     (extend-frame frame empty-frame)
     ))
 
+(define global-environment (init-environment))
+
+; }}}
+; primitive {{{
 (define primitive-procedures
   '(
     +
@@ -98,16 +113,8 @@
     )
     (install primitive-procedures))
 
-(define global-environment (init-environment))
-
-(define (application? exp)
-  (pair? exp))
-
-(define (operator exp)
-  (car exp))
-
-(define (operands exp)
-  (cdr exp))
+; }}}
+; main {{{
 
 (define (repl)
   (display prompt)
@@ -119,6 +126,9 @@
       )
     )
   )
+
 (define (main args)
   (repl)
   0)
+
+; }}}
