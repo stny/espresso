@@ -21,7 +21,7 @@
         ((variable? exp) (find-variable exp env))
         ((application? exp)
          (apply (eval (operator exp) env)
-                (operands exp)))
+                (extract-operands (operands exp) env)))
   (else
     (error "EVAL ERROR" exp))))
 
@@ -40,6 +40,11 @@
         value
         (find-variable var (cdr env))))))
 
+(define (extract-operands exps env)
+  (if (null? exps)
+    '()
+    (cons (eval (car exps) env) (extract-operands (cdr exps) env))
+  ))
 
 (define empty-frame '())
 
