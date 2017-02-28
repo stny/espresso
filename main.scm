@@ -65,9 +65,26 @@
 
 (define (init-environment)
   (let ((frame (make-frame)))
-    (add-binding-to-frame! '+ + frame)
+    (install-primitive-procedures frame)
     (extend-frame frame empty-frame)
     ))
+
+(define primitive-procedures
+  '(+ - * /)
+  )
+
+(define (install-primitive-procedures frame)
+  (define (install procedures)
+    (if (null? procedures)
+      '()
+      (begin
+        (add-binding-to-frame!
+          (car procedures)
+          (gauche-eval (car procedures) (interaction-environment)) frame)
+        (install (cdr procedures)))
+      )
+    )
+    (install primitive-procedures))
 
 (define global-environment (init-environment))
 
