@@ -78,6 +78,10 @@
     =
     >
     <
+    car
+    cdr
+    cons
+    eq?
     )
   )
 
