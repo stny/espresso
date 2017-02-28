@@ -120,6 +120,10 @@
   (display prompt)
   (flush)
   (let ((input (read)))
+    (if (eof-object? input)
+      (begin
+        (print "(╯°□°）╯︵ ┻━┻")
+        (exit)))
     (let ((output (eval input global-environment)))
       (print output)
       (repl)
