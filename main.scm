@@ -5,13 +5,75 @@
 
 (define prompt "latte>> ")
 
-(define global-environment '())
-
+(define gauche-apply apply)
 (define gauche-eval eval)
 
-(define (eval exp env)
-  exp
+(define (apply procedure args)
+  (display "apply: ")
+  (print procedure)
+  (gauche-apply procedure args)
   )
+
+(define (eval exp env)
+  (display "eval: ")
+  (print exp)
+  (cond ((self-evaluating? exp) exp)
+        ((variable? exp) (find-variable exp env))
+        ((application? exp)
+         (apply (eval (operator exp) env)
+                (operands exp)))
+  (else
+    (error "EVAL ERROR" exp))))
+
+(define (self-evaluating? exp)
+  (cond ((number? exp) #t)
+        ((string? exp) #t)
+        (else #f)))
+
+(define (variable? exp) (symbol? exp))
+
+(define (find-variable var env)
+  (if (eq? env '()) (error "Unbound variable" var))
+  (let ((frame (first-frame env)))
+    (let ((value (frame-get frame var)))
+      (if value
+        value
+        (find-variable var (cdr env))))))
+
+
+(define empty-frame '())
+
+(define (make-frame)
+  (make-hash-table))
+
+(define (first-frame frame)
+  (car frame))
+
+(define (frame-get frame var)
+  (hash-table-get frame var #f))
+
+(define (add-binding-to-frame! var val frame)
+  (hash-table-put! frame var val))
+
+(define (extend-frame frame base-frame)
+  (cons frame base-frame))
+
+(define (init-environment)
+  (let ((frame (make-frame)))
+    (add-binding-to-frame! '+ + frame)
+    (extend-frame frame empty-frame)
+    ))
+
+(define global-environment (init-environment))
+
+(define (application? exp)
+  (pair? exp))
+
+(define (operator exp)
+  (car exp))
+
+(define (operands exp)
+  (cdr exp))
 
 (define (repl)
   (display prompt)
