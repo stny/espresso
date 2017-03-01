@@ -19,6 +19,7 @@
   (print exp)
   (cond ((self-evaluating? exp) exp)
         ((variable? exp) (find-variable exp env))
+        ((quoted? exp) (cadr exp))
         ((application? exp)
          (apply (eval (operator exp) env)
                 (extract-operands (operands exp) env)))
@@ -31,6 +32,13 @@
         (else #f)))
 
 (define (variable? exp) (symbol? exp))
+
+(define (quoted? exp)
+  (check-element? exp 'quote))
+
+(define (check-element? exp tag)
+  (if (pair? exp)
+    (eq? (car exp) tag)))
 
 (define (find-variable var env)
   (if (eq? env '()) (error "Unbound variable" var))
