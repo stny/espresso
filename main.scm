@@ -19,7 +19,7 @@
   (print exp)
   (cond ((self-evaluating? exp) exp)
         ((variable? exp) (find-variable exp env))
-        ((quoted? exp) (cadr exp))
+        ((quoted? exp) (eval-quote exp))
         ((application? exp)
          (apply (eval (operator exp) env)
                 (extract-operands (operands exp) env)))
@@ -35,6 +35,9 @@
 
 (define (quoted? exp)
   (check-element? exp 'quote))
+
+(define (eval-quote exp)
+  (cadr exp))
 
 (define (check-element? exp tag)
   (if (pair? exp)
