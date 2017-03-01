@@ -20,6 +20,7 @@
   (cond ((self-evaluating? exp) exp)
         ((variable? exp) (find-variable exp env))
         ((quoted? exp) (eval-quote exp))
+        ((if? exp) (eval-if exp env))
         ((application? exp)
          (apply (eval (operator exp) env)
                 (extract-operands (operands exp) env)))
@@ -36,8 +37,34 @@
 (define (quoted? exp)
   (check-element? exp 'quote))
 
+(define (if? exp)
+  (check-element? exp 'if)
+  )
+
+(define (true? x)
+  (not (eq? x #f)))
+
+(define (false? x)
+  (eq? x #f))
+
 (define (eval-quote exp)
   (cadr exp))
+
+(define (eval-if exp env)
+  (if (true? (eval (if-predicate exp) env))
+    (eval (if-consequent exp) env)
+    (eval (if-alternative exp) env)))
+
+(define (if-predicate exp)
+  (cadr exp))
+
+(define (if-consequent exp)
+  (caddr exp))
+
+(define (if-alternative exp)
+  (if (not (null? (cdddr exp)))
+    (cadddr exp)
+    #f))
 
 (define (check-element? exp tag)
   (if (pair? exp)
