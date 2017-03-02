@@ -11,8 +11,9 @@
 (define (apply procedure args)
   (display "apply: ")
   (print procedure)
-  (gauche-apply procedure args)
-  )
+  (if (primitive-procedure? procedure)
+    (gauche-apply (cdr procedure) args)
+    ))
 
 (define (eval exp env)
   (display "eval: ")
@@ -39,6 +40,10 @@
 
 (define (if? exp)
   (check-element? exp 'if)
+  )
+
+(define (primitive-procedure? procedure)
+  (check-element? exp 'primitive)
   )
 
 (define (true? x)
@@ -117,7 +122,8 @@
       (begin
         (add-binding-to-frame!
           (car procedures)
-          (gauche-eval (car procedures) (interaction-environment)) frame)
+          (cons 'primitive
+                (gauche-eval (car procedures) (interaction-environment))) frame)
         (install (cdr procedures)))
       )
     )
