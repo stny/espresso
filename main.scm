@@ -22,6 +22,8 @@
         ((variable? exp) (find-variable exp env))
         ((quoted? exp) (eval-quote exp))
         ((if? exp) (eval-if exp env))
+        ((lambda? exp) (eval-lambda exp env))
+        ((definition? exp) (eval-definition exp env))
         ((application? exp)
          (apply (eval (operator exp) env)
                 (extract-operands (operands exp) env)))
@@ -45,6 +47,16 @@
 (define (primitive-procedure? procedure)
   (check-element? exp 'primitive)
   )
+
+(define (extend-procedure? procedure)
+  (check-element? exp 'procedure)
+  )
+
+(define (definition? exp)
+  (check-element? exp 'define))
+
+(define (lambda? exp)
+  (check-element? exp 'lambda))
 
 (define (true? x)
   (not (eq? x #f)))
@@ -71,9 +83,41 @@
     (cadddr exp)
     #f))
 
+(define (eval-definition exp env)
+  (define-variable! (definition-variable exp)
+                    (eval (definition-value exp) env) env))
+
+(define (definition-variable exp)
+  (if (symbol? (cadr exp))
+     (cadr exp)
+     (caadr exp)))
+
+(define (definition-value exp)
+  (if (symbol? (cadr exp))
+    (caddr exp)
+    (make-lambda (func-param exp) (func-body exp))))
+
+(define (func-param exp)
+  (cdr (car (cdr exp))))
+
+(define (func-body exp)
+  (cdr (cdr exp)))
+
+(define (make-lambda param body)
+  (cons 'lambda (cons param body)))
+
+(define (define-variable! var val env)
+  (let ((frame (first-frame env)))
+    (add-binding-to-frame! var val frame)))
+
+(define (eval-lambda exp env)
+  (list 'procedure (cadr exp) (cddr exp) env))
+
 (define (check-element? exp tag)
   (if (pair? exp)
-    (eq? (car exp) tag)))
+    (eq? (car exp) tag)
+    #f
+    ))
 
 (define (find-variable var env)
   (if (eq? env '()) (error "Unbound variable" var))
