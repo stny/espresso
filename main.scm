@@ -44,11 +44,11 @@
   (check-element? exp 'if)
   )
 
-(define (primitive-procedure? procedure)
+(define (primitive-procedure? exp)
   (check-element? exp 'primitive)
   )
 
-(define (extend-procedure? procedure)
+(define (extend-procedure? exp)
   (check-element? exp 'procedure)
   )
 
