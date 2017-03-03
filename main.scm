@@ -41,6 +41,7 @@
         ((if? exp) (eval-if exp env))
         ((lambda? exp) (eval-lambda exp env))
         ((definition? exp) (eval-definition exp env))
+        ((assignment? exp) (eval-assignment exp env))
         ((application? exp)
          (apply (eval (operator exp) env)
                 (extract-operands (operands exp) env)))
@@ -71,6 +72,9 @@
 
 (define (definition? exp)
   (check-element? exp 'define))
+
+(define (assignment? exp)
+  (check-element? exp 'set!))
 
 (define (lambda? exp)
   (check-element? exp 'lambda))
@@ -103,6 +107,17 @@
 (define (eval-definition exp env)
   (define-variable! (definition-variable exp)
                     (eval (definition-value exp) env) env))
+
+(define (eval-assignment exp env)
+  (define (assignment-loop search-env)
+    (if (null? search-env) (error "Unbound variable -- SET!"))
+    (let ((frame (first-frame search-env))
+          (variable (definition-variable exp))
+          (value (eval (definition-value exp) env)))
+      (if (hash-table-exists? frame variable)
+        (add-binding-to-frame! variable value frame)
+        (assignment-loop (cdr search-env)))))
+  (assignment-loop env))
 
 (define (definition-variable exp)
   (if (symbol? (cadr exp))
