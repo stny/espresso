@@ -8,6 +8,8 @@
 (define gauche-apply apply)
 (define gauche-eval eval)
 
+; apply {{{
+
 (define (apply procedure args)
   (display "apply: ")
   (print procedure)
@@ -32,6 +34,9 @@
         (define-loop proc-args args)
         (eval proc-body env))))
 
+; }}}
+; eval {{{
+
 (define (eval exp env)
   (display "eval: ")
   (print exp)
@@ -48,6 +53,8 @@
   (else
     (error "EVAL ERROR" exp))))
 
+; }}}
+; detector {{{
 (define (self-evaluating? exp)
   (cond ((number? exp) #t)
         ((string? exp) #t)
@@ -84,6 +91,17 @@
 
 (define (false? x)
   (eq? x #f))
+
+(define (check-element? exp tag)
+  (if (pair? exp)
+    (eq? (car exp) tag)
+    #f
+    ))
+
+(define (application? exp)
+  (pair? exp))
+
+; }}}
 
 (define (eval-quote exp)
   (cadr exp))
@@ -145,12 +163,6 @@
 (define (eval-lambda exp env)
   (list 'procedure (cadr exp) (cddr exp) env))
 
-(define (check-element? exp tag)
-  (if (pair? exp)
-    (eq? (car exp) tag)
-    #f
-    ))
-
 (define (find-variable var env)
   (if (eq? env '()) (error "Unbound variable" var))
   (let ((frame (first-frame env)))
@@ -164,9 +176,6 @@
     '()
     (cons (eval (car exps) env) (extract-operands (cdr exps) env))
   ))
-
-(define (application? exp)
-  (pair? exp))
 
 (define (operator exp)
   (car exp))
