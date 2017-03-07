@@ -44,6 +44,7 @@
         ((variable? exp) (find-variable exp env))
         ((quoted? exp) (eval-quote exp))
         ((if? exp) (eval-if exp env))
+        ((and? exp) (eval-and exp env))
         ((lambda? exp) (eval-lambda exp env))
         ((definition? exp) (eval-definition exp env))
         ((assignment? exp) (eval-assignment exp env))
@@ -101,6 +102,9 @@
 (define (application? exp)
   (pair? exp))
 
+(define (and? exp)
+  (check-element? exp 'and))
+
 ; }}}
 
 (define (eval-quote exp)
@@ -121,6 +125,20 @@
   (if (not (null? (cdddr exp)))
     (cadddr exp)
     #f))
+
+(define (eval-and exps env)
+  (define (condition-loop conditions)
+    (let ((ret (eval (car conditions) env)))
+      (if (null? (cdr conditions))
+        (if ret ret #f)
+        (if ret
+          (condition-loop (cdr conditions))
+          #f))))
+    (condition-loop (and-condition exps)))
+
+(define (and-condition exps)
+  (cdr exps)
+  )
 
 (define (eval-definition exp env)
   (define-variable! (definition-variable exp)
