@@ -166,10 +166,9 @@
 (define (find-variable var env)
   (if (eq? env '()) (error "Unbound variable" var))
   (let ((frame (first-frame env)))
-    (let ((value (frame-get frame var)))
-      (if value
-        value
-        (find-variable var (cdr env))))))
+      (if (frame-variable-exists? frame var)
+        (frame-get frame var)
+        (find-variable var (cdr env)))))
 
 (define (extract-operands exps env)
   (if (null? exps)
@@ -228,6 +227,9 @@
 (define (frame-get frame var)
   (hash-table-get frame var #f))
 
+(define (frame-variable-exists? frame var)
+  (hash-table-exists? frame var))
+
 (define (add-binding-to-frame! var val frame)
   (hash-table-put! frame var val))
 
@@ -237,6 +239,8 @@
 (define (init-environment)
   (let ((frame (make-frame)))
     (install-primitive-procedures frame)
+    (add-binding-to-frame! 'true #t frame)
+    (add-binding-to-frame! 'false #f frame)
     (extend-frame frame empty-frame)
     ))
 
