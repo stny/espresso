@@ -45,6 +45,7 @@
         ((quoted? exp) (eval-quote exp))
         ((if? exp) (eval-if exp env))
         ((and? exp) (eval-and exp env))
+        ((or? exp) (eval-or exp env))
         ((lambda? exp) (eval-lambda exp env))
         ((definition? exp) (eval-definition exp env))
         ((assignment? exp) (eval-assignment exp env))
@@ -105,6 +106,8 @@
 (define (and? exp)
   (check-element? exp 'and))
 
+(define (or? exp)
+  (check-element? exp 'or))
 ; }}}
 
 (define (eval-quote exp)
@@ -139,6 +142,18 @@
 (define (and-condition exps)
   (cdr exps)
   )
+
+(define (eval-or exps env)
+  (define (condition-loop conditions)
+    (let ((ret (eval (car conditions) env)))
+      (if ret ret
+        (if (null? (cdr conditions))
+          #f
+          (condition-loop (cdr conditions))))))
+  (condition-loop (or-condition exps)))
+
+(define (or-condition exps)
+  (cdr exps))
 
 (define (eval-definition exp env)
   (define-variable! (definition-variable exp)
